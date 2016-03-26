@@ -1,0 +1,5 @@
+test:
+  adapter: postgresql
+  database: try_catch_test
+  encoding: unicode
+  username: postgres
