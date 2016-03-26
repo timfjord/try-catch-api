@@ -1,0 +1,23 @@
+language: ruby
+cache: bundler
+
+services:
+  - postgresql
+
+before_install:
+  - gem install bundler
+
+before_script:
+  - cp config/database.yml.travis config/database.yml
+  - bundle exec rails db:create
+  - bundle exec rails db:migrate
+
+notifications:
+  email: false
+
+rvm:
+  - 2.2.3
+  - 2.3.0
+
+gemfile:
+  - Gemfile

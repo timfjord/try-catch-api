@@ -8,7 +8,8 @@ gem 'rack-cors'
 
 group :development, :test do
   gem 'byebug'
-  gem 'rspec-rails', '~> 3.0'
+  gem 'rspec', '3.5.0.beta2'
+  gem 'rspec-rails', '3.5.0.beta2'
 end
 
 group :development do
