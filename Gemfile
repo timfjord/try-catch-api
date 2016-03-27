@@ -5,6 +5,7 @@ gem 'pg', '~> 0.18'
 gem 'puma'
 gem 'bcrypt', '~> 3.1.7'
 gem 'rack-cors'
+gem 'active_model_serializers'
 
 group :development, :test do
   gem 'byebug'
@@ -26,6 +27,7 @@ group :test do
   gem 'factory_girl_rails'
   gem 'database_cleaner'
   gem 'shoulda-matchers'
+  gem 'json_spec'
 end
 
 group :production do

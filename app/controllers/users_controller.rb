@@ -1,10 +1,9 @@
 class UsersController < ApplicationController
   def sign_in
-    if User.authenticated?(sign_in_params[:email], sign_in_params[:password])
-      head :ok
-    else
-      head :unprocessable_entity
-    end
+    User.authenticate! sign_in_params[:email], sign_in_params[:password]
+    head :ok
+  rescue Errors::UnauthorizedError
+    head :unprocessable_entity
   end
 
   private
