@@ -12,7 +12,7 @@ RSpec.describe 'Users', type: :request do
     end
 
     it 'should not be success if no users found' do
-      post sign_in_users_path params
+      post sign_in_users_path, params: params
 
       expect(response).not_to be_success
     end
@@ -20,7 +20,7 @@ RSpec.describe 'Users', type: :request do
     it 'should not be success if password is invalid' do
       create :user, email: params[:user][:email], password: '12345678'
 
-      post sign_in_users_path params
+      post sign_in_users_path, params: params
 
       expect(response).not_to be_success
     end
@@ -28,7 +28,7 @@ RSpec.describe 'Users', type: :request do
     it 'should be success if user found' do
       create :user, email: params[:user][:email], password: params[:user][:password]
 
-      post sign_in_users_path params
+      post sign_in_users_path, params: params
 
       expect(response).to be_success
     end
