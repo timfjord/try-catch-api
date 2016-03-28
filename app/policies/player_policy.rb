@@ -1,0 +1,2 @@
+class PlayerPolicy < ApplicationPolicy
+end
