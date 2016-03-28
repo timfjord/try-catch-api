@@ -31,7 +31,7 @@ RSpec.describe 'Teams', type: :request do
     end
 
     context 'signed in' do
-      sign_in :admin
+      sign_in :guest
 
       it 'should show team' do
         get team_path(team)
@@ -41,6 +41,23 @@ RSpec.describe 'Teams', type: :request do
         expect(resp['team']['id']).to eql team.id
         expect(resp['team']['name']).to eql team.name
       end
+    end
+  end
+
+  describe 'build' do
+    it_behaves_like 'action that requires authentification' do
+      let(:action) { get build_teams_path }
+    end
+
+    it 'should return built team with policy' do
+      user = create :guest
+      sign_in user
+
+      get build_teams_path
+
+      expect(response).to be_success
+      resp = parse_json response.body
+      expect(resp['team']['createable']).to eql false
     end
   end
 

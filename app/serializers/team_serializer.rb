@@ -1,3 +1,5 @@
 class TeamSerializer < ActiveModel::Serializer
-  attributes :id, :name
+  include Policable
+
+  attributes :id, :name, :editable, :deleteable, :createable
 end

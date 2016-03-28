@@ -9,6 +9,10 @@ class PlayersController < ApplicationController
     render json: @players
   end
 
+  def build
+    render json: Player.new
+  end
+
   def create
     player = @team.players.build player_params.merge(user: current_user)
     authorize player

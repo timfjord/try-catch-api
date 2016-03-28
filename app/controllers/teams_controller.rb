@@ -8,6 +8,10 @@ class TeamsController < ApplicationController
     render json: @teams
   end
 
+  def build
+    render json: Team.new
+  end
+
   def create
     team = current_user.teams.build team_params
     authorize team

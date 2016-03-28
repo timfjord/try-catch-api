@@ -1,6 +1,6 @@
 class User < ApplicationRecord
   has_secure_password
-  enum role: [:guest, :user, :admin]
+  enum role: [:guest, :regular, :admin]
 
   has_many :teams
   has_many :players

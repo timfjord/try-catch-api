@@ -2,25 +2,40 @@
 
 [![Build Status](https://travis-ci.org/timsly/try-catch-api.svg?branch=master)](https://travis-ci.org/timsly/try-catch-api)
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Live url: https://try-catch-api.herokuapp.com/
 
-Things you may want to cover:
+### Requirements
 
-* Ruby version
+* ruby 2.2 or higher
+* PostgreSQL
+* Bundler
 
-* System dependencies
+### Setup
 
-* Configuration
+    $ bundle install
+    $ createuser -d try_catch
+    $ rails db:create
+    $ rails db:migrate
 
-* Database creation
+#### Seeds
 
-* Database initialization
+To add some sample data run
 
-* How to run the test suite
+    $ rails db:seed
 
-* Services (job queues, cache servers, search engines, etc.)
+It will create two teams with players and 4 users:
 
-* Deployment instructions
+* admin@try-catch.com - admin user
+* user1@try-catch.com - regular user
+* user2@try-catch.com - regular user
+* guest@try-catch.com - guest user
 
-* ...
+All users have password 123456
+
+### Test suite
+
+    $ rspec
+
+or
+
+    $ rake
