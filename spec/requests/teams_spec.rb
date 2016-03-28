@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe 'Teams', type: :request do
   describe 'listing' do
-    it_behaves_like 'protected action' do
+    it_behaves_like 'action that requires authentification' do
       let(:action) { get teams_path }
     end
 
@@ -23,79 +23,129 @@ RSpec.describe 'Teams', type: :request do
     end
   end
 
-  describe 'create' do
-    it_behaves_like 'protected action' do
-      let(:action) { post teams_path }
+  describe 'show' do
+    let(:team) { create :team }
+
+    it_behaves_like 'action that requires authentification' do
+      let(:action) { get team_path(team) }
     end
 
     context 'signed in' do
-      sign_in
+      sign_in :admin
 
-      let(:params) do
-        {
-          team: {
-            name: 'Lazio'
-          }
-        }
-      end
-
-      it 'should create team for current user' do
-        post teams_path, params: params
+      it 'should show team' do
+        get team_path(team)
 
         expect(response).to be_success
-        expect(Team.all.size).to eql 1
-        team = Team.first
-        expect(team.name).to eql params[:team][:name]
-        expect(team.user).to eql current_user
+        resp = parse_json response.body
+        expect(resp['team']['id']).to eql team.id
+        expect(resp['team']['name']).to eql team.name
       end
+    end
+  end
+
+  describe 'create' do
+    let(:params) do
+      {
+        team: {
+          name: 'Lazio'
+        }
+      }
+    end
+
+    it_behaves_like 'action that requires authentification' do
+      let(:action) { post teams_path }
+    end
+
+    it_behaves_like 'action that requires authorization for', :guest do
+      let(:action) { post teams_path, params: params }
+    end
+
+    it 'should create team for current user' do
+      user = create :regular
+      sign_in user
+      post teams_path, params: params
+
+      expect(response).to be_success
+      expect(Team.all.size).to eql 1
+      team = Team.first
+      expect(team.name).to eql params[:team][:name]
+      expect(team.user).to eql user
     end
   end
 
   describe 'update' do
     let(:team) { create :team }
+    let(:params) do
+      {
+        team: {
+          name: 'Lazio'
+        }
+      }
+    end
 
-    it_behaves_like 'protected action' do
+    it_behaves_like 'action that requires authentification' do
       let(:action) { patch team_path(team), params: {} }
     end
 
-    context 'signed in' do
-      sign_in
+    it_behaves_like 'action that requires authorization for', :guest do
+      let(:action) { patch team_path(team), params: params }
+    end
 
-      let(:params) do
-        {
-          team: {
-            name: 'Lazio'
-          }
-        }
-      end
+    it_behaves_like 'action that requires authorization for', :regular do
+      let(:action) { patch team_path(team), params: params }
+    end
 
-      it 'should update team' do
-        patch team_path(team), params: params
+    it 'should update any team as admin' do
+      sign_in create(:admin)
 
-        expect(response).to be_success
-        expect(Team.all.size).to eql 1
-        team = Team.first
-        expect(team.name).to eql params[:team][:name]
-      end
+      patch team_path(team), params: params
+
+      expect(response).to be_success
+      expect(Team.all.size).to eql 1
+      expect(Team.first.name).to eql params[:team][:name]
+    end
+
+    it 'should update own tean as regular user' do
+      regular_user = create :regular
+      team.update_attributes user: regular_user
+      sign_in regular_user
+
+      patch team_path(team), params: params
+
+      expect(response).to be_success
+      expect(Team.all.size).to eql 1
+      expect(Team.first.name).to eql params[:team][:name]
     end
   end
 
   describe 'destroy' do
     let(:team) { create :team }
 
-    it_behaves_like 'protected action' do
+    it_behaves_like 'action that requires authentification' do
       let(:action) { delete team_path(team) }
     end
 
-    context 'signed in' do
-      sign_in
+    it_behaves_like 'action that requires authorization for', :regular do
+      let(:action) { delete team_path(team) }
+    end
 
-      it 'should update team for current user' do
-        delete team_path(team)
+    it 'should destroy any team as admin' do
+      sign_in create(:admin)
+      delete team_path(team)
 
-        expect(response).to be_success
-        expect(Team.where(id: team.id)).to be_empty
-      end
+      expect(response).to be_success
+      expect(Team.where(id: team.id)).to be_empty
+    end
+
+    it 'should destroy own team as regular user' do
+      regular_user = create :regular
+      team.update_attributes user: regular_user
+      sign_in regular_user
+      delete team_path(team)
+
+      expect(response).to be_success
+      expect(Team.where(id: team.id)).to be_empty
     end
   end
 end

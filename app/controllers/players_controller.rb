@@ -10,12 +10,15 @@ class PlayersController < ApplicationController
   end
 
   def create
-    player = @team.players.create! player_params.merge(user: current_user)
+    player = @team.players.build player_params.merge(user: current_user)
+    authorize player
+    player.save
 
     render json: player
   end
 
   def update
+    authorize @player
     @player.assign_attributes player_params
     @player.save!
 
@@ -23,6 +26,7 @@ class PlayersController < ApplicationController
   end
 
   def destroy
+    authorize @player
     @player.destroy!
 
     head :ok

@@ -4,7 +4,7 @@ RSpec.describe 'Player', type: :request do
   let(:team) { create :team }
 
   describe 'listing' do
-    it_behaves_like 'protected action' do
+    it_behaves_like 'action that requires authentification' do
       let(:action) { get team_players_path(team) }
     end
 
@@ -27,79 +27,105 @@ RSpec.describe 'Player', type: :request do
   end
 
   describe 'create' do
-    it_behaves_like 'protected action' do
-      let(:action) { post team_players_path(team) }
+    let(:params) do
+      {
+        player: {
+          name: 'Pele'
+        }
+      }
     end
 
-    context 'signed in' do
-      sign_in
+    it_behaves_like 'action that requires authentification' do
+      let(:action) { post team_players_path(team), params: params }
+    end
 
-      let(:params) do
-        {
-          player: {
-            name: 'Pele'
-          }
-        }
-      end
+    it_behaves_like 'action that requires authorization for', :guest do
+      let(:action) { post team_players_path(team), params: params }
+    end
 
-      it 'should create player for current user and team' do
-        post team_players_path(team), params: params
+    it 'should create player for current user and team' do
+      user = create :regular
+      sign_in user
+      post team_players_path(team), params: params
 
-        expect(response).to be_success
-        expect(Player.all.size).to eql 1
-        player = Player.first
-        expect(player.name).to eql params[:player][:name]
-        expect(player.user).to eql current_user
-        expect(player.team).to eql team
-      end
+      expect(response).to be_success
+      expect(Player.all.size).to eql 1
+      player = Player.first
+      expect(player.name).to eql params[:player][:name]
+      expect(player.user).to eql user
+      expect(player.team).to eql team
     end
   end
 
   describe 'update' do
     let(:player) { create :player }
-
-    it_behaves_like 'protected action' do
-      let(:action) { patch player_path(player), params: {} }
+    let(:params) do
+      {
+        player: {
+          name: 'Pele'
+        }
+      }
     end
 
-    context 'signed in' do
+    it_behaves_like 'action that requires authentification' do
+      let(:action) { patch player_path(player), params: params }
+    end
+
+    it_behaves_like 'action that requires authorization for', :regular do
+      let(:action) { patch player_path(player), params: params }
+    end
+
+    it 'should update any player as admin' do
       sign_in
+      patch player_path(player), params: params
 
-      let(:params) do
-        {
-          player: {
-            name: 'Pele'
-          }
-        }
-      end
+      expect(response).to be_success
+      expect(Player.all.size).to eql 1
+      player = Player.first
+      expect(player.name).to eql params[:player][:name]
+    end
 
-      it 'should update player' do
-        patch player_path(player), params: params
+    it 'should update own player as regular' do
+      regular_user = create :regular
+      player.update_attributes user: regular_user
+      sign_in regular_user
 
-        expect(response).to be_success
-        expect(Player.all.size).to eql 1
-        player = Player.first
-        expect(player.name).to eql params[:player][:name]
-      end
+      patch player_path(player), params: params
+
+      expect(response).to be_success
+      expect(Player.all.size).to eql 1
+      player = Player.first
+      expect(player.name).to eql params[:player][:name]
     end
   end
 
   describe 'destroy' do
     let(:player) { create :player }
 
-    it_behaves_like 'protected action' do
+    it_behaves_like 'action that requires authentification' do
       let(:action) { delete player_path(player) }
     end
 
-    context 'signed in' do
+    it_behaves_like 'action that requires authorization for', :regular do
+      let(:action) { delete player_path(player) }
+    end
+
+    it 'should destroy any player as admin' do
       sign_in
+      delete player_path(player)
 
-      it 'should update team for current user' do
-        delete player_path(player)
+      expect(response).to be_success
+      expect(Player.where(id: player.id)).to be_empty
+    end
 
-        expect(response).to be_success
-        expect(Player.where(id: player.id)).to be_empty
-      end
+    it 'should destroy own player as regular user' do
+      regular_user = create :regular
+      player.update_attributes user: regular_user
+      sign_in regular_user
+      delete player_path(player)
+
+      expect(response).to be_success
+      expect(Player.where(id: player.id)).to be_empty
     end
   end
 end

@@ -3,6 +3,11 @@ class ApplicationController < ActionController::API
 
   include ActionController::HttpAuthentication::Basic::ControllerMethods
   include ActionController::Serialization
+  include Pundit
+
+  rescue_from Pundit::NotAuthorizedError do
+    head :unauthorized
+  end
 
   private
 

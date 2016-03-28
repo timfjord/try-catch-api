@@ -2,14 +2,14 @@ module SignInHelper
   extend ActiveSupport::Concern
 
   class_methods do
-    def sign_in(who = :guest)
+    def sign_in(who = :admin)
       let(:current_user) { FactoryGirl.create(who) }
       before(:each) { sign_in current_user }
     end
   end
 
   def sign_in(user = nil)
-    @current_user = user || FactoryGirl.create(:guest)
+    @current_user = user || FactoryGirl.create(:admin)
   end
 
   [:get, :post, :put, :patch, :delete].each do |method|
