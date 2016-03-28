@@ -4,6 +4,10 @@ Rails.application.routes.draw do
   end
 
   resources :teams do
+    get :build, on: :collection
+
     resources :players, except: :show, shallow: true
   end
+
+  get 'players/build' => 'players#build', as: 'build_players'
 end

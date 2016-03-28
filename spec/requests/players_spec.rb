@@ -26,6 +26,23 @@ RSpec.describe 'Player', type: :request do
     end
   end
 
+  describe 'build' do
+    it_behaves_like 'action that requires authentification' do
+      let(:action) { get build_players_path }
+    end
+
+    it 'should return built player with policy' do
+      user = create :guest
+      sign_in user
+
+      get build_players_path
+
+      expect(response).to be_success
+      resp = parse_json response.body
+      expect(resp['player']['createable']).to eql false
+    end
+  end
+
   describe 'create' do
     let(:params) do
       {
